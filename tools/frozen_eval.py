@@ -72,7 +72,8 @@ def main(a):
     if a.limit:
         pairs = pairs[:a.limit]
     stereo, flow = models.load_pair(a.checkpoint, a.stereo_init, a.flow_init, S, F)
-    out_dir = a.out / a.tag
+    out = a.out or paths.REPO / ("results/frozen" if a.protocol == "independent" else "results/frozen_consistent")
+    out_dir = out / a.tag
     results = {}
     for name, family, severity, base_seed in conditions(a.families or FAMILIES, not a.no_clean):
         path = out_dir / f"{name}.json"
@@ -118,6 +119,7 @@ if __name__ == "__main__":
     p.add_argument("--pairs", type=Path, default=paths.REPO / "configs/frozen_pairs.txt")
     p.add_argument("--stereo-init", type=Path, default=paths.DEFOM_INIT)
     p.add_argument("--flow-init", type=Path, default=paths.DPFLOW_INIT)
-    p.add_argument("--out", type=Path, default=paths.REPO / "results/frozen")
+    p.add_argument("--out", type=Path, default=None,
+                   help="default: results/frozen or results/frozen_consistent")
     p.add_argument("--limit", type=int, default=0)
     main(p.parse_args())

@@ -1,10 +1,14 @@
 __pycache__/
 *.pyc
+.pytest_cache/
+.venv/
+.DS_Store
 third_party/
 checkpoints/
 data/
 runs/
 results/
+predictions/
 *.pt
 *.pth
 *.ckpt

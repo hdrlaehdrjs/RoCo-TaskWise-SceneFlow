@@ -17,7 +17,7 @@ spatially localized corruptions, and correspondence-guided masking (CorrMask).
 ## Results
 
 Official [Spring scene flow benchmark](https://spring-benchmark.org/sceneflow) entry
-**RoCo-19-Q4-Independent** (rank 3 as of 2026-09-23):
+**RoCo-19-Q4-Independent**:
 
 | 1px total | SF | 1px D1 | 1px D2 | 1px Fl |
 |---|---|---|---|---|
@@ -37,6 +37,9 @@ See the leaderboard for the per-region breakdown and metric definitions.
 pip install -r requirements.txt
 bash setup_third_party.sh        # clones DEFOM-Stereo (+ a 3-line patch) and flow_library
 ```
+
+The script checks out the commits used for the paper (DEFOM-Stereo `5b27591`, flow_library
+`8454aed`). DPFlow comes from `ptlflow==0.4.2`.
 
 The patch lets DEFOM-Stereo keep the gradient through its recurrent disparity state
 (`patches/defom_stereo_detach.patch`); the default behaviour is unchanged.
@@ -110,6 +113,23 @@ python tools/frozen_eval.py --tag final --checkpoint runs/final/best.pt \
 rain/snow/spatter mask in the left reference view and moves it to the other views with the
 ground-truth disparity and flow. These pairs come from the same scenes as the validation pairs, so
 they are not an unseen-scene test set.
+
+Confidence intervals for differences between models (10,000 scene-clustered bootstrap replicates
+over the 7 held-out scenes):
+
+```bash
+python tools/bootstrap_ci.py --results results/frozen --compare final:q4aug_transport --conditions all
+python tools/bootstrap_ci.py --results results/frozen_consistent --compare final:independent_view \
+    --conditions spatial
+```
+
+Agreement between the D2 gradient and each network's own loss gradient, measured on a fixed list
+of 48 training quadruplets without updating the model:
+
+```bash
+python tools/gradient_alignment.py --checkpoint final=runs/final/best.pt \
+    --checkpoint coupled=runs/coupled/best.pt --out results/gradient_alignment.csv
+```
 
 ## License
 

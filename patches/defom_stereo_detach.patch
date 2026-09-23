@@ -1,0 +1,13 @@
+--- a/core/defom_stereo.py
++++ b/core/defom_stereo.py
+@@ -99,7 +99,9 @@
+ 
+         disp_predictions = []
+         for itr in range(iters):
+-            disp = disp.detach()
++            # detach_disparity=False keeps the gradient through the recurrent state.
++            if getattr(self.args, 'detach_disparity', True):
++                disp = disp.detach()
+ 
+             if itr < scale_iters:
+                 corr = corr_fn(disp, scaling=True)  # index correlation volume
